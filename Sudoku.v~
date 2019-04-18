@@ -3,7 +3,6 @@
 Require Import Coq.Init.Datatypes.
 Require Import Coq.Bool.Bool.
 Require Import Coq.Lists.List.
-Require Import Coq.Init.Nat.
 Import ListNotations.
 
 (** HELPER DATATYPES **)
@@ -70,50 +69,3 @@ Fixpoint row (puzzle : Sudoku) (row : nat) : multiset :=
   row_helper puzzle row one_thru_nine empty.
 
 (* Parallel function for column and similar idea but nuanced for box to come. *)
-
-Fixpoint column_helper (puzzle : Sudoku) (col : nat) (counter : list nat) (acc : multiset) : multiset :=
-  match counter with
-  | [] => acc
-  | i :: t => if (puzzle (i, col)) == 0 then column_helper puzzle col t acc
-            else union (singleton (puzzle (i, col))) (row_helper puzzle col t acc)
-  end.       
-
-Fixpoint column (puzzle : Sudoku) (column : nat) : multiset :=
-  column_helper puzzle column one_thru_nine empty.
-
-(**                BOX NUMBERS
-                 -----------------
-                |     |     |     |
-                |  1  |  2  |  3  |
-                |     |     |     |        
-                |-----------------|
-                |     |     |     |
-                |  4  |  5  |  6  |
-                |     |     |     |        
-                |-----------------|
-                |     |     |     |
-                |  7  |  8  |  9  |
-                |     |     |     |        
-                 -----------------               **)
-
-Definition box_pairs : list pair := [ (1,1); (1,2); (1,3); (2,1); (2,2); (2,3);
-                                        (3,1); (3,2); (3,3) ].
-
-Definition pair_addition (pair1 pair2 : pair) : pair :=
-  match pair1, pair2 with
-  | (a, b), (c, d) => (a + c, b + d)
-  end.                       
-
-Infix "+p" := pair_addition (at level 100).
-
-Fixpoint box_helper (puzzle : Sudoku) (pairList : list pair) (acc: multiset) :
-  multiset :=
-  match pairList with
-  | [] => acc
-  | h :: t => if (puzzle h) == 0 then box_helper puzzle t acc
-            else union (singleton (puzzle h)) (box_helper puzzle t acc)
-  end.
-
-Fixpoint box (puzzle : Sudoku) (box : nat) : multiset :=
-  box_helper puzzle (map (pair_addition (3*(div (box-1) 3),3*(modulo (box-1) 3))) box_pairs) empty.
-
