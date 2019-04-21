@@ -117,3 +117,72 @@ Fixpoint box_helper (puzzle : Sudoku) (pairList : list pair) (acc: multiset) :
 Fixpoint box (puzzle : Sudoku) (box : nat) : multiset :=
   box_helper puzzle (map (pair_addition (3*(div (box-1) 3),3*(modulo (box-1) 3))) box_pairs) empty.
 
+(* Makes sure no element of the multiset range 1-9 has multiplicity greater than    1.
+ *)
+Definition set_consistent (set : multiset) : bool :=
+  fold_left (fun b i => b && (set i <=? 1)) one_thru_nine true.
+
+(* Makes sure all elements of the multiset range 1-9 has multiplicity exactly 1.
+ *)
+Definition set_complete (set : multiset) : bool :=
+  fold_left (fun b i => b && (set i == 1)) one_thru_nine true.
+
+Definition rows_consistent (puzzle : Sudoku) : bool :=
+  fold_left (fun b i => b && (set_consistent (row puzzle i))) one_thru_nine true.
+
+Definition cols_consistent (puzzle : Sudoku) : bool :=
+  fold_left (fun b i => b && (set_consistent (column puzzle i))) one_thru_nine true.
+
+Definition boxes_consistent (puzzle : Sudoku) : bool :=
+  fold_left (fun b i => b && (set_consistent (box puzzle i))) one_thru_nine true.
+
+Definition sudoku_consistent (puzzle : Sudoku) : bool :=
+  (rows_consistent puzzle) && (cols_consistent puzzle)
+                           && (boxes_consistent puzzle).
+
+Definition rows_complete (puzzle : Sudoku) : bool :=
+  fold_left (fun b i => b && (set_complete (row puzzle i))) one_thru_nine true.
+
+Definition cols_complete (puzzle : Sudoku) : bool :=
+  fold_left (fun b i => b && (set_complete (column puzzle i))) one_thru_nine true.
+
+Definition boxes_complete (puzzle : Sudoku) : bool :=
+  fold_left (fun b i => b && (set_complete (box puzzle i))) one_thru_nine true.
+
+Definition sudoku_complete (puzzle : Sudoku) : bool :=
+  (rows_complete puzzle) && (cols_complete puzzle)
+                           && (boxes_complete puzzle).
+
+(* ABOVE AS PROPOSITIONS *)
+Definition P_set_consistent (set : multiset) : Prop :=
+  fold_left (fun b i => b /\ (set i <= 1)) one_thru_nine True.
+
+Definition P_set_complete (set : multiset) : Prop  :=
+  fold_left (fun b i => b /\ (set i = 1)) one_thru_nine True.
+
+Definition P_rows_consistent (puzzle : Sudoku) : Prop :=
+  fold_left (fun b i => b /\ (P_set_consistent (row puzzle i))) one_thru_nine True.
+
+Definition P_cols_consistent (puzzle : Sudoku) : Prop :=
+  fold_left (fun b i => b /\ (P_set_consistent (column puzzle i))) one_thru_nine True.
+
+Definition P_boxes_consistent (puzzle : Sudoku) : Prop :=
+  fold_left (fun b i => b /\ (P_set_consistent (box puzzle i))) one_thru_nine True.
+
+Definition P_sudoku_consistent (puzzle : Sudoku) : Prop :=
+  (P_rows_consistent puzzle) /\ (P_cols_consistent puzzle)
+                           /\ (P_boxes_consistent puzzle).
+
+Definition P_rows_complete (puzzle : Sudoku) : Prop :=
+  fold_left (fun b i => b /\ (P_set_complete (row puzzle i))) one_thru_nine True.
+
+Definition P_cols_complete (puzzle : Sudoku) : Prop :=
+  fold_left (fun b i => b /\ (P_set_complete (column puzzle i))) one_thru_nine True.
+
+Definition P_boxes_complete (puzzle : Sudoku) : Prop :=
+  fold_left (fun b i => b /\ (P_set_complete (box puzzle i))) one_thru_nine True.
+
+Definition P_sudoku_complete (puzzle : Sudoku) : Prop :=
+  (P_rows_complete puzzle) /\ (P_cols_complete puzzle)
+                           /\ (P_boxes_complete puzzle).
+
